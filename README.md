@@ -27,11 +27,11 @@ This project is a home lab designed to demonstrate practical blue team cybersecu
 ## 🔧 Lab Architecture
 
 | Component          | OS              | Purpose                                      |
-|--------------------|------------------|----------------------------------------------|
-| 💻 SIEM Server     | Ubuntu Server    | Hosts Splunk Enterprise (Free Trial)         |
-| 🪟 Target Endpoint | Windows 10/11    | Sysmon + Splunk Universal Forwarder          |
-| 🧑‍💻 Attacker VM     | Kali Linux        | Attack simulation with Metasploit, etc.      |
-| 🌐 NIDS VM         | Ubuntu Server    | Runs Suricata + Splunk Forwarder             |
+|--------------------|-----------------|----------------------------------------------|
+| 💻 SIEM Server     | Ubuntu Server   | Hosts Splunk Enterprise (Free Trial)         |
+| 🪟 Target Endpoint  | Windows 10/11   | Sysmon + Splunk Universal Forwarder          |
+| 🧑‍💻 Attacker VM    | Kali Linux      | Attack simulation with Metasploit, etc.      |
+| 🌐 NIDS VM         | Ubuntu Server   | Runs Suricata + Splunk Forwarder             |
 
 > 🔒 All VMs are configured in **Host-Only Networking** for safe and controlled simulation.
 
@@ -49,3 +49,27 @@ This project is a home lab designed to demonstrate practical blue team cybersecu
 - **Custom Dashboards & Alerts**
 
 ---
+
+## 🧪 Credential Dumping Attack Simulation
+
+### Attack Overview
+
+This section simulates a **credential dumping attack** on the Windows VM using the **Mimikatz/Kiwi** tool executed via an obfuscated PowerShell payload launched from the Kali Linux attacker VM. The attack attempts to dump credentials from the Local Security Authority Subsystem (LSASS) process, a common tactic used by attackers to escalate privileges and move laterally within a network.
+
+### Detection Strategy
+
+To detect this attack, multiple logs and event types are correlated within Splunk:
+
+- **Suspicious PowerShell Registry Edits:** Identifies obfuscated commands modifying registry keys to establish persistence and disable security logging.  
+- **Malicious Service Creations (EventCode 7045):** Detects attacker-installed services created during the attack timeframe for persistence.  
+- **Execution Timeline of Credential Dumping Tools:** Tracks execution of tools like mimikatz, kiwi, and related PowerShell commands to identify credential dumping activity.  
+- **Logon Sessions During Attack Window:** Monitors successful logons during the attack period to detect possible lateral movement or unauthorized access.
+
+### MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name                     | Description                                                  |
+|--------------|----------------------------------|--------------------------------------------------------------|
+| T1003        | Credential Dumping               | Attackers dump credentials from LSASS using mimikatz/kiwi.   |
+| T1543        | Create or Modify System Process | Creation of malicious services for persistence.              |
+| T1112        | Modify Registry                 | Obfuscated PowerShell edits to registry keys to hide activity.|
+| T1078        | Valid Accounts                 | Unauthorized logons using compromised credentials.           |

@@ -74,6 +74,8 @@ To detect this attack, multiple logs and event types are correlated within Splun
 | T1112        | Modify Registry                 | Obfuscated PowerShell edits to registry keys to hide activity.|
 | T1078        | Valid Accounts                 | Unauthorized logons using compromised credentials.           |
 
+![Dashboard]("C:\Users\15169\Pictures\Screenshots\CredentialDumpDashboard.png")
+
 ## 🔐 Brute Force Attack Simulation
 
 ### Attack Overview

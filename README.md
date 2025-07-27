@@ -74,6 +74,8 @@ To detect this attack, multiple logs and event types are correlated within Splun
 | T1112        | Modify Registry                 | Obfuscated PowerShell edits to registry keys to hide activity.|
 | T1078        | Valid Accounts                 | Unauthorized logons using compromised credentials.           |
 
+#### Dashboard:
+
 ![Dashboard](./dashboard/CredentialDumpDashboard.png)
 
 ## 🔐 Brute Force Attack Simulation
@@ -96,4 +98,8 @@ The brute force attempt is detected by collecting and analyzing failed logon eve
 |--------------|----------------|-----------------------------------------------------------------|
 | T1110        | Brute Force    | Repeated password guessing to gain access to valid credentials.|
 | T1078        | Valid Accounts | Attempting access using guessed or stolen credentials.         |
+
+#### Dashboard:
+
+![Dashboard](./dashboard/BruteForceDashboard.png)
 

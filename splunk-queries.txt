@@ -1,0 +1,56 @@
+Credential Dumping Attack
+
+Query 1 (suspicious registry activity):
+index=sysmon (EventCode=12 OR EventCode=13)
+| search TargetObject="*powershell*" OR Details="*powershell*" OR Details="*COMSPEC*"
+| table _time TargetObject Details User
+| sort - _time
+
+Query 2 (7045 creation at around same time as query 1):
+index=wineventlog EventCode=7045 earliest="07/23/2025:22:55:00" latest="07/23/2025:23:10:00"
+| timechart span=1m count by ComputerName
+| rename count as "Service Creations"
+| eval TimeLabel = strftime(_time, "%H:%M")
+
+Query 3 (Suspicious Service Creations):
+index=wineventlog EventCode=7045 earliest="07/23/2025:22:55:00" latest="07/23/2025:23:10:00"
+| timechart span=1m count by ComputerName
+| rename count as "Service Creations"
+| eval TimeLabel = strftime(_time, "%H:%M")
+
+Query 4 (Logon Line Chart):
+index=wineventlog EventCode=4624 earliest="07/23/2025:22:55:00" latest="07/23/2025:23:10:00"
+| eval LogonTypeLabel=case(
+    Logon_Type=="2", "Interactive",
+    Logon_Type=="3", "Network",
+    Logon_Type=="5", "Service",
+    Logon_Type=="10", "RDP",
+    1==1, "Other"
+)
+| timechart span=1m count by LogonTypeLabel
+
+Query 5 (Network Flow During Attack) :
+index=suricata (event_type=flow OR event_type=protocol) earliest="07/23/2025:22:55:00" latest="07/23/2025:23:10:00"
+| stats count by src_ip, dest_ip, dest_port
+| sort - count
+
+
+Brute Force Attack
+
+Query 1 (SMB Brute Force Alerts):
+index=suricata alert.signature="Possible SMB Brute Force Attempt"
+| stats count AS "SMB Brute Force Alerts"
+
+Query 2 (Failed Logons Over Time): 
+index=wineventlog EventCode=4625 earliest="07/26/2025:15:00:00" latest="07/26/2025:19:00:00"
+| timechart span=1m count
+
+Query 3 (Recent Suricata Alerts): 
+index=suricata event_type=alert
+| eval time_12hr=strftime(_time, "%m/%d/%Y %I:%M:%S %p")
+| table time_12hr src_ip dest_ip proto alert.signature alert.severity
+| sort -_time
+
+Query 4 (Failed Login Attempts by Source): 
+index=wineventlog EventCode=4625
+| timechart count by Source_Network_Address span=1m

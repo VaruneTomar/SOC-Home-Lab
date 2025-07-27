@@ -73,3 +73,25 @@ To detect this attack, multiple logs and event types are correlated within Splun
 | T1543        | Create or Modify System Process | Creation of malicious services for persistence.              |
 | T1112        | Modify Registry                 | Obfuscated PowerShell edits to registry keys to hide activity.|
 | T1078        | Valid Accounts                 | Unauthorized logons using compromised credentials.           |
+
+## 🔐 Brute Force Attack Simulation
+
+### Attack Overview
+
+This section simulates a **Windows account brute force attack** using **Hydra** from the Kali Linux attacker VM. The tool systematically attempts multiple username and password combinations against the Windows VM over the RDP protocol, mimicking a real-world password spraying or credential guessing attack.
+
+### Detection Strategy
+
+The brute force attempt is detected by collecting and analyzing failed logon events from the Windows Event Log (`EventCode=4625`) and Suricata alerts:
+
+- **Windows Event Logs (EventCode 4625):** Tracks repeated failed logins by source IP address during a short time window, showing suspicious brute force activity.
+- **Time-Bound Logon Failure Spike:** A timechart visualizes logon failures occurring between 3:00 PM and 7:00 PM to isolate attack window.
+- **Suricata IDS Alerts:** Detects unusual authentication attempts and flags signature-based brute force behavior.
+
+### MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name | Description                                                     |
+|--------------|----------------|-----------------------------------------------------------------|
+| T1110        | Brute Force    | Repeated password guessing to gain access to valid credentials.|
+| T1078        | Valid Accounts | Attempting access using guessed or stolen credentials.         |
+
